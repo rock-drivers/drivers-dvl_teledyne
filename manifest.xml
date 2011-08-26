@@ -1,6 +1,8 @@
 <package>
   <description brief="Driver for Teledyne DVL">
-  This package contains a driver for the Teledyne explorer DVL and other
+  This package contains a driver for the Teledyne Navigator DVL and other
+  Teledyne DVLs. It also contains classes to parse the Teledyne PD0 ensemble and
+  payload.
   </description>
   <author>Sylvain Joyeux/sylvain.joyeux@dfki.de</author>
   <license></license>

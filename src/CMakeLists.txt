@@ -1,7 +1,8 @@
 rock_library(dvl_teledyne
-    SOURCES Dummy.cpp
-    HEADERS Dummy.hpp)
+    SOURCES PD0Parser.cpp Driver.cpp
+    HEADERS PD0Parser.hpp Driver.hpp
+    DEPS_PKGCONFIG base-types iodrivers_base)
 
-rock_executable(dvl_teledyne_bin Main.cpp
+rock_executable(dvl_teledyne_info
+    MainInfo.cpp
     DEPS dvl_teledyne)
-
