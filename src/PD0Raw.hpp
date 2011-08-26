@@ -16,7 +16,7 @@ namespace dvl_teledyne
             uint8_t data_source_id;
             uint16_t size;
             uint8_t  spare;
-            uint16_t msg_count;
+            uint8_t  msg_count;
             uint16_t offsets[0];
         } __attribute__((packed));
 
