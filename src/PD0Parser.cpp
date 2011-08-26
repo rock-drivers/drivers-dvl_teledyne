@@ -85,6 +85,7 @@ int PD0Parser::extractPacket(uint8_t const* buffer, size_t size, size_t max_size
         if (msg_size != 0)
             expected_offset = offsets[i] + msg_size;
     }
+    return total_size;
 }
 
 int PD0Parser::getSizeOfMessage(uint16_t msg_id) const
