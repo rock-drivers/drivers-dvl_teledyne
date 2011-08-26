@@ -93,7 +93,7 @@ namespace dvl_teledyne
         uint8_t  base_frequency_index;
     };
 
-    enum COORDINATE_SYSTEM
+    enum COORDINATE_SYSTEMS
     {
         BEAM, INSTRUMENT, SHIP, EARTH
     };
@@ -101,7 +101,7 @@ namespace dvl_teledyne
     /** Configuration of the device estimation */
     struct OutputConfiguration
     {
-        COORDINATE_SYSTEM coordinate_system;
+        COORDINATE_SYSTEMS coordinate_system;
         bool use_attitude;
         bool use_3beam_solution;
         bool use_binary_mapping;
