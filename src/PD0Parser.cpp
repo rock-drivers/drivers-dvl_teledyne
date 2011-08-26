@@ -1,11 +1,10 @@
 #include <dvl_teledyne/PD0Parser.hpp>
+#include <dvl_teledyne/PD0Raw.hpp>
 #include <endian.h>
 #include <stdexcept>
 #include <base/float.h>
 
 using namespace dvl_teledyne;
-namespace raw=dvl_teledyne::pd0_raw_messages;
-namespace msg=dvl_teledyne::pd0_messages;
 
 int PD0Parser::extractPacket(uint8_t const* buffer, size_t size, size_t max_size) const
 {
@@ -154,15 +153,15 @@ void PD0Parser::parseMessage(uint8_t const* buffer, size_t size)
         parseQualityReadings(buffer, size);
         break;
     case raw::BottomTrackingMessage::ID:
-        mBT.time = mDeviceState.time;
+        mBottomTracking.time = mDeviceState.time;
         parseBottomTrackingReadings(buffer, size);
         break;
     }
 }
 
-static msg::Sensors parseSensors(uint8_t bitfield)
+static Sensors parseSensors(uint8_t bitfield)
 {
-    msg::Sensors result;
+    Sensors result;
     result.calculates_speed_of_sound = bitfield & raw::PD0_CALCULATE_SPEED_OF_SOUND;
     result.depth             = bitfield & raw::PD0_DEPTH_SENSOR;
     result.yaw           = bitfield & raw::PD0_YAW_SENSOR;
@@ -217,16 +216,16 @@ void PD0Parser::parseFixedLeader(uint8_t const* buffer, size_t size)
     switch(mode & raw::PD0_COORDINATE_SYSTEM_MASK)
     {
     case raw::PD0_COORD_BEAM:
-        mOutputConf.coordinate_system = msg::BEAM;
+        mOutputConf.coordinate_system = BEAM;
         break;
     case raw::PD0_COORD_INSTRUMENT:
-        mOutputConf.coordinate_system = msg::INSTRUMENT;
+        mOutputConf.coordinate_system = INSTRUMENT;
         break;
     case raw::PD0_COORD_SHIP:
-        mOutputConf.coordinate_system = msg::SHIP;
+        mOutputConf.coordinate_system = SHIP;
         break;
     case raw::PD0_COORD_EARTH:
-        mOutputConf.coordinate_system = msg::EARTH;
+        mOutputConf.coordinate_system = EARTH;
         break;
     default: throw std::runtime_error("unexpected value for coordinate_transformation_mode & raw::PD0_COORDINATE_SYSTEM_MASK");
     }
@@ -294,7 +293,7 @@ void PD0Parser::parseVelocityReadings(uint8_t const* buffer, size_t size)
     {
         // This is pre-sized as soon as we know the number of cells in the
         // acquisition process
-        msg::CellReading& cell = mCellReadings.readings[cell_idx];
+        CellReading& cell = mCellReadings.readings[cell_idx];
         
         for (int beam_idx = 0; beam_idx < 4; ++beam_idx)
         {
@@ -317,7 +316,7 @@ void PD0Parser::parseCorrelationReadings(uint8_t const* buffer, size_t size)
     {
         // This is pre-sized as soon as we know the number of cells in the
         // acquisition process
-        msg::CellReading& cell = mCellReadings.readings[cell_idx];
+        CellReading& cell = mCellReadings.readings[cell_idx];
         
         for (int beam_idx = 0; beam_idx < 4; ++beam_idx)
         {
@@ -337,7 +336,7 @@ void PD0Parser::parseIntensityReadings(uint8_t const* buffer, size_t size)
     {
         // This is pre-sized as soon as we know the number of cells in the
         // acquisition process
-        msg::CellReading& cell = mCellReadings.readings[cell_idx];
+        CellReading& cell = mCellReadings.readings[cell_idx];
         
         for (int beam_idx = 0; beam_idx < 4; ++beam_idx)
         {
@@ -357,7 +356,7 @@ void PD0Parser::parseQualityReadings(uint8_t const* buffer, size_t size)
     {
         // This is pre-sized as soon as we know the number of cells in the
         // acquisition process
-        msg::CellReading& cell = mCellReadings.readings[cell_idx];
+        CellReading& cell = mCellReadings.readings[cell_idx];
         
         for (int beam_idx = 0; beam_idx < 4; ++beam_idx)
         {
@@ -374,29 +373,29 @@ void PD0Parser::parseBottomTrackingReadings(uint8_t const* buffer, size_t size)
 
     raw::BottomTrackingMessage const& msg = *reinterpret_cast<raw::BottomTrackingMessage const*>(buffer);
 
-    mBTConf.ping_per_ensemble = le16toh(msg.bottom_ping_per_ensemble);
-    mBTConf.delay_before_reacquiring = le16toh(msg.bottom_delay_before_reacquiring);
-    mBTConf.correlation_threshold = 1.0f / 255 * msg.bottom_correlation_threshold;
-    mBTConf.evaluation_threshold  = 1.0f / 255 * msg.bottom_evaluation_threshold;
-    mBTConf.good_ping_threshold = 0.01f * msg.bottom_good_ping_threshold;
-    mBTConf.mode = msg.bottom_mode;
-    mBTConf.max_velocity_error = 1e-3f * le16toh(msg.bottom_max_velocity_error);
-    mBTConf.max_tracking_depth = 1e-1f * le16toh(msg.max_tracking_depth);
+    mBottomTrackingConf.ping_per_ensemble = le16toh(msg.bottom_ping_per_ensemble);
+    mBottomTrackingConf.delay_before_reacquiring = le16toh(msg.bottom_delay_before_reacquiring);
+    mBottomTrackingConf.correlation_threshold = 1.0f / 255 * msg.bottom_correlation_threshold;
+    mBottomTrackingConf.evaluation_threshold  = 1.0f / 255 * msg.bottom_evaluation_threshold;
+    mBottomTrackingConf.good_ping_threshold = 0.01f * msg.bottom_good_ping_threshold;
+    mBottomTrackingConf.mode = msg.bottom_mode;
+    mBottomTrackingConf.max_velocity_error = 1e-3f * le16toh(msg.bottom_max_velocity_error);
+    mBottomTrackingConf.max_tracking_depth = 1e-1f * le16toh(msg.max_tracking_depth);
 
-    mBT.time = mDeviceState.time;
+    mBottomTracking.time = mDeviceState.time;
     for (int beam = 0; beam < 4; ++beam)
     {
         uint32_t value = static_cast<uint32_t>(le16toh(msg.bottom_range_low[beam])) +
             (static_cast<uint32_t>(msg.bottom_range_high[beam]) << 16);
         if (value)
-            mBT.range[beam]           = 1e-2f * value;
+            mBottomTracking.range[beam]           = 1e-2f * value;
         else
-            mBT.range[beam]           = base::unknown<float>();
+            mBottomTracking.range[beam]           = base::unknown<float>();
 
-        mBT.velocity[beam]        = 1e-3f * le16toh(msg.bottom_velocity[beam]);
-        mBT.correlation[beam]     = 1.0f / 255 * msg.bottom_correlation[beam];
-        mBT.evaluation[beam]      = 1.0f / 255 * msg.bottom_evaluation[beam];
-        mBT.good_ping_ratio[beam] = 1.0f / 255 * msg.bottom_good_ping_ratio[beam];
-        mBT.rssi[beam]            = 0.45f * msg.rssi[beam];
+        mBottomTracking.velocity[beam]        = 1e-3f * le16toh(msg.bottom_velocity[beam]);
+        mBottomTracking.correlation[beam]     = 1.0f / 255 * msg.bottom_correlation[beam];
+        mBottomTracking.evaluation[beam]      = 1.0f / 255 * msg.bottom_evaluation[beam];
+        mBottomTracking.good_ping_ratio[beam] = 1.0f / 255 * msg.bottom_good_ping_ratio[beam];
+        mBottomTracking.rssi[beam]            = 0.45f * msg.rssi[beam];
     }
 }

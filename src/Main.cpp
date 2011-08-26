@@ -24,7 +24,7 @@ int main(int argc, char const* argv[])
     {
         driver.read();
 
-        BottomTracking const& tracking = mDeviceInfo.mBottomTracking;
+        BottomTracking const& tracking = driver.mBottomTracking;
         std::cout << tracking.time.toString();
         for (int beam = 0; beam < 4; ++beam)
             std::cout << " " << tracking.range[beam] << " " << tracking.velocity[beam] << " " << tracking.evaluation[beam];

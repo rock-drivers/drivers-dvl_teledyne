@@ -24,7 +24,7 @@ int main(int argc, char const* argv[])
     std::cout << "  serno: " << std::hex << driver.mDeviceInfo.cpu_board_serno << std::dec << std::endl;
     std::cout << "  beam count: " << driver.mDeviceInfo.beam_count << std::endl;
     std::cout << "  available sensors:" << std::endl;
-    dvl_teledyne::pd0_messages::Sensors const& sensors = driver.mDeviceInfo.available_sensors;
+    dvl_teledyne::Sensors const& sensors = driver.mDeviceInfo.available_sensors;
     std::cout << "    depth: " << (sensors.depth ? "yes" : "no") << std::endl;
     std::cout << "    yaw: "   << (sensors.yaw ? "yes" : "no") << std::endl;
     std::cout << "    pitch: " << (sensors.pitch ? "yes" : "no") << std::endl;
