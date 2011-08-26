@@ -26,7 +26,7 @@ int PD0Parser::extractPacket(uint8_t const* buffer, size_t size, size_t max_size
         // realign the IODriver buffer to the start of the candidate packet
         return -packet_start;
     }
-    else if (buffer[1] != raw::Header::DATA_SOURCE_ID)
+    else if (size > 1 && buffer[1] != raw::Header::DATA_SOURCE_ID)
     {
         // not actually a packet. Drop the first two bytes and let IODriver call
         // us back
