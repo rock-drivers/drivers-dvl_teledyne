@@ -109,7 +109,7 @@ void PD0Parser::parseEnsemble(uint8_t const* buffer, size_t size)
 
 void PD0Parser::invalidateCellReadings()
 {
-    for (int i = 0; i < mAcqConf.cell_count; ++i)
+    for (size_t i = 0; i < mCellReadings.readings.size(); ++i)
     {
         for (int beam = 0; beam < 4; ++beam)
         {
