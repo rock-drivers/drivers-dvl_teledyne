@@ -377,7 +377,7 @@ void PD0Parser::parseBottomTrackingReadings(uint8_t const* buffer, size_t size)
     mBTConf.ping_per_ensemble = le16toh(msg.bottom_ping_per_ensemble);
     mBTConf.delay_before_reacquiring = le16toh(msg.bottom_delay_before_reacquiring);
     mBTConf.correlation_threshold = 1.0f / 255 * msg.bottom_correlation_threshold;
-    mBTConf.evaluation_threshold = 1.0f / 255 * msg.bottom_evaluation_threshold;
+    mBTConf.evaluation_threshold  = 1.0f / 255 * msg.bottom_evaluation_threshold;
     mBTConf.good_ping_threshold = 0.01f * msg.bottom_good_ping_threshold;
     mBTConf.mode = msg.bottom_mode;
     mBTConf.max_velocity_error = 1e-3f * le16toh(msg.bottom_max_velocity_error);
@@ -388,7 +388,11 @@ void PD0Parser::parseBottomTrackingReadings(uint8_t const* buffer, size_t size)
     {
         uint32_t value = static_cast<uint32_t>(le16toh(msg.bottom_range_low[beam])) +
             (static_cast<uint32_t>(msg.bottom_range_high[beam]) << 16);
-        mBT.range[beam]           = 1e-3f * value;
+        if (value)
+            mBT.range[beam]           = 1e-2f * value;
+        else
+            mBT.range[beam]           = base::unknown<float>();
+
         mBT.velocity[beam]        = 1e-3f * le16toh(msg.bottom_velocity[beam]);
         mBT.correlation[beam]     = 1.0f / 255 * msg.bottom_correlation[beam];
         mBT.evaluation[beam]      = 1.0f / 255 * msg.bottom_evaluation[beam];
