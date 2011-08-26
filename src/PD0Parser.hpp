@@ -30,7 +30,7 @@ namespace dvl_teledyne
         DeviceInfo mDeviceInfo;
         AcquisitionConfiguration mAcqConf;
         OutputConfiguration mOutputConf;
-        DeviceState mDeviceState;
+        Status mStatus;
         CellReadings mCellReadings;
         BottomTrackingConfiguration mBottomTrackingConf;
         BottomTracking mBottomTracking;

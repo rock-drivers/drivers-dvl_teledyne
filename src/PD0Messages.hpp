@@ -108,7 +108,7 @@ namespace dvl_teledyne
     };
 
     /** Realtime device state */
-    struct DeviceState
+    struct Status
     {
         uint32_t seq;
         base::Time time;

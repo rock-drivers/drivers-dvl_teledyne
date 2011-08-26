@@ -137,23 +137,23 @@ void PD0Parser::parseMessage(uint8_t const* buffer, size_t size)
         parseVariableLeader(buffer, size);
         break;
     case raw::VelocityMessage::ID:
-        mCellReadings.time = mDeviceState.time;
+        mCellReadings.time = mStatus.time;
         parseVelocityReadings(buffer, size);
         break;
     case raw::CorrelationMessage::ID:
-        mCellReadings.time = mDeviceState.time;
+        mCellReadings.time = mStatus.time;
         parseCorrelationReadings(buffer, size);
         break;
     case raw::IntensityMessage::ID:
-        mCellReadings.time = mDeviceState.time;
+        mCellReadings.time = mStatus.time;
         parseIntensityReadings(buffer, size);
         break;
     case raw::QualityMessage::ID:
-        mCellReadings.time = mDeviceState.time;
+        mCellReadings.time = mStatus.time;
         parseQualityReadings(buffer, size);
         break;
     case raw::BottomTrackingMessage::ID:
-        mBottomTracking.time = mDeviceState.time;
+        mBottomTracking.time = mStatus.time;
         parseBottomTrackingReadings(buffer, size);
         break;
     }
@@ -241,7 +241,7 @@ void PD0Parser::parseVariableLeader(uint8_t const* buffer, size_t size)
 
     raw::VariableLeader const& msg = *reinterpret_cast<raw::VariableLeader const*>(buffer);
 
-    mDeviceState.seq  = static_cast<uint32_t>(msg.seq_low) + (static_cast<uint32_t>(msg.seq_high) << 16);
+    mStatus.seq  = static_cast<uint32_t>(msg.seq_low) + (static_cast<uint32_t>(msg.seq_high) << 16);
     {
         // Get current UTC time broken down in day, h, m, s
         time_t utc_epoch = ::time(NULL);
@@ -257,30 +257,30 @@ void PD0Parser::parseVariableLeader(uint8_t const* buffer, size_t size)
 
         // And convert it back to seconds since epoch
         time_t since_epoch = timegm(&utc_hms);
-        mDeviceState.time = base::Time::fromSeconds(since_epoch, static_cast<uint64_t>(msg.rtc_hundredth) * 10000);
+        mStatus.time = base::Time::fromSeconds(since_epoch, static_cast<uint64_t>(msg.rtc_hundredth) * 10000);
     }
 
-    mDeviceState.orientation =
+    mStatus.orientation =
         Eigen::AngleAxisd(M_PI / 180 * 0.01 * le16toh(msg.roll),    Eigen::Vector3d::UnitX()) *
         Eigen::AngleAxisd(M_PI / 180 * 0.01 * le16toh(msg.pitch),   Eigen::Vector3d::UnitY()) *
         Eigen::AngleAxisd(M_PI / 180 * 0.01 * le16toh(msg.yaw), Eigen::Vector3d::UnitZ());
-    mDeviceState.stddev_orientation[0] = M_PI / 180.0f * msg.stddev_yaw;
-    mDeviceState.stddev_orientation[1] = M_PI / 180.0f * 0.1f * msg.stddev_pitch;
-    mDeviceState.stddev_orientation[2] = M_PI / 180.0f * 0.1f * msg.stddev_roll;
-    mDeviceState.speed_of_sound = 1.0f * le16toh(msg.speed_of_sound);
-    mDeviceState.salinity    = 1e-3f * le16toh(msg.salinity_at_transducer);
-    mDeviceState.depth       = 1e-1f * le16toh(msg.depth_of_transducer);
-    mDeviceState.temperature = 1e-2f * le16toh(msg.temperature_at_transducer);
-    mDeviceState.pressure    = 100.0f + 10.0f * le32toh(msg.pressure_at_transducer);
-    mDeviceState.pressure_variance = 100.0f + 10.0f * le32toh(msg.pressure_variance_at_transducer);
+    mStatus.stddev_orientation[0] = M_PI / 180.0f * msg.stddev_yaw;
+    mStatus.stddev_orientation[1] = M_PI / 180.0f * 0.1f * msg.stddev_pitch;
+    mStatus.stddev_orientation[2] = M_PI / 180.0f * 0.1f * msg.stddev_roll;
+    mStatus.speed_of_sound = 1.0f * le16toh(msg.speed_of_sound);
+    mStatus.salinity    = 1e-3f * le16toh(msg.salinity_at_transducer);
+    mStatus.depth       = 1e-1f * le16toh(msg.depth_of_transducer);
+    mStatus.temperature = 1e-2f * le16toh(msg.temperature_at_transducer);
+    mStatus.pressure    = 100.0f + 10.0f * le32toh(msg.pressure_at_transducer);
+    mStatus.pressure_variance = 100.0f + 10.0f * le32toh(msg.pressure_variance_at_transducer);
     uint64_t milliseconds =
         static_cast<uint32_t>(msg.min_preping_wait_duration_min * 60 * 1000) +
         static_cast<uint32_t>(msg.min_preping_wait_duration_sec * 1000) +
         static_cast<uint32_t>(msg.min_preping_wait_duration_hundredth * 10);
-    mDeviceState.min_preping_wait = base::Time::fromMicroseconds(milliseconds * 1000);
+    mStatus.min_preping_wait = base::Time::fromMicroseconds(milliseconds * 1000);
 
     for (int i = 0; i < 8; ++i)
-        mDeviceState.adc_channels[i] = msg.adc_channels[i];
+        mStatus.adc_channels[i] = msg.adc_channels[i];
 }
 
 void PD0Parser::parseVelocityReadings(uint8_t const* buffer, size_t size)
@@ -382,7 +382,7 @@ void PD0Parser::parseBottomTrackingReadings(uint8_t const* buffer, size_t size)
     mBottomTrackingConf.max_velocity_error = 1e-3f * le16toh(msg.bottom_max_velocity_error);
     mBottomTrackingConf.max_tracking_depth = 1e-1f * le16toh(msg.max_tracking_depth);
 
-    mBottomTracking.time = mDeviceState.time;
+    mBottomTracking.time = mStatus.time;
     for (int beam = 0; beam < 4; ++beam)
     {
         uint32_t value = static_cast<uint32_t>(le16toh(msg.bottom_range_low[beam])) +
