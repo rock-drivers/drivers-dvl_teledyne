@@ -42,7 +42,7 @@ int PD0Parser::extractPacket(uint8_t const* buffer, size_t size, size_t max_size
     // This is the size EXCLUDING CHECKSUM
     uint16_t ensemble_size = le16toh(header.size);
     uint16_t total_size = ensemble_size + 2;
-    if (max_size < total_size)
+    if (max_size && max_size < total_size)
     {
         // Assume that this packet is not valid as it has a size too big. Drop
         // the first two bytes, and let IODriver call us back to parse the rest
