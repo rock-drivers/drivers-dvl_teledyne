@@ -67,6 +67,8 @@ int PD0Parser::extractPacket(uint8_t const* buffer, size_t size, size_t max_size
         return -2;
     }
 
+    if (sizeof(raw::Header) + header.msg_count * 2 > ensemble_size)
+        return -2;
     uint32_t offsets[256];
     for (int i = 0; i < header.msg_count; ++i)
         offsets[i] = le16toh(header.offsets[i]);
