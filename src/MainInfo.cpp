@@ -20,9 +20,9 @@ int main(int argc, char const* argv[])
     driver.read();
 
     std::cout << "Found device" << std::endl;
-    std::cout << "  fw: " << driver.mDeviceInfo.fw_version << "." << driver.mDeviceInfo.fw_revision << std::endl;
+    std::cout << "  fw: " << (int)driver.mDeviceInfo.fw_version << "." << (int)driver.mDeviceInfo.fw_revision << std::endl;
     std::cout << "  serno: " << std::hex << driver.mDeviceInfo.cpu_board_serno << std::dec << std::endl;
-    std::cout << "  beam count: " << driver.mDeviceInfo.beam_count << std::endl;
+    std::cout << "  beam count: " << (int)driver.mDeviceInfo.beam_count << std::endl;
     std::cout << "  available sensors:" << std::endl;
     dvl_teledyne::Sensors const& sensors = driver.mDeviceInfo.available_sensors;
     std::cout << "    depth: " << (sensors.depth ? "yes" : "no") << std::endl;
