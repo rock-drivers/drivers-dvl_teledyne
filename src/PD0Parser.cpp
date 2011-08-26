@@ -60,9 +60,7 @@ int PD0Parser::extractPacket(uint8_t const* buffer, size_t size, size_t max_size
         checksum += buffer[i];
 
     uint16_t msg_checksum = le16toh(*reinterpret_cast<uint16_t const*>(buffer + ensemble_size));
-    if (checksum == msg_checksum)
-        return ensemble_size + 2;
-    else
+    if (checksum != msg_checksum)
     {
         // Not a valid message. Drop the message IDs and let IODriver call us
         // back to find the start of the actual packet
