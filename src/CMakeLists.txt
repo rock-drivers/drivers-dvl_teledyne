@@ -6,3 +6,6 @@ rock_library(dvl_teledyne
 rock_executable(dvl_teledyne_info
     MainInfo.cpp
     DEPS dvl_teledyne)
+rock_executable(dvl_teledyne_read
+    Main.cpp
+    DEPS dvl_teledyne)
