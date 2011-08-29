@@ -19,6 +19,12 @@ namespace dvl_teledyne
 
     public:
         Driver();
+
+        /** Tries to access the DVL at the provided URI
+         *
+         * For now, only a serial port can be provided. It is assumed that the
+         * DVL is using 9600 bauds (the manufacturer's default)
+         */
         void open(std::string const& uri);
 
         /** Once open using the baudrate specified in the URI, configures the
@@ -35,9 +41,24 @@ namespace dvl_teledyne
          */
         void sendConfigurationFile(std::string const& file_name);
 
+        /** Sets the device into configuration mode (and make it stop pinging)
+         * */
         void setConfigurationMode();
+
+        /** Start acquisition
+         *
+         * Since the driver relies on receiving PD0 message frames, this method
+         * requires the DVL to send into this format, and then starts pinging
+         */
         void startAcquisition();
+
+        /** Read available packets on the I/O */
         void read();
+
+        /** Verifies that the DVL acked a configuration command
+         *
+         * Throws std::runtime_error if an error is reported by the device
+         */
         void readConfigurationAck(base::Time const& timeout = base::Time::fromSeconds(1));
     };
 }
