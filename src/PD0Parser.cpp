@@ -396,7 +396,12 @@ void PD0Parser::parseBottomTrackingReadings(uint8_t const* buffer, size_t size)
         else
             mBottomTracking.range[beam]           = base::unknown<float>();
 
-        mBottomTracking.velocity[beam]        = 1e-3f * le16toh(msg.bottom_velocity[beam]);
+        int16_t velocity = le16toh(msg.bottom_velocity[beam]);
+        if (velocity == -32768)
+            mBottomTracking.velocity[beam]        = base::unknown<float>();
+        else
+            mBottomTracking.velocity[beam]        = 1e-3f * value;
+
         mBottomTracking.correlation[beam]     = 1.0f / 255 * msg.bottom_correlation[beam];
         mBottomTracking.evaluation[beam]      = 1.0f / 255 * msg.bottom_evaluation[beam];
         mBottomTracking.good_ping_ratio[beam] = 1.0f / 255 * msg.bottom_good_ping_ratio[beam];
