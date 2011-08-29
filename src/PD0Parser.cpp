@@ -4,6 +4,11 @@
 #include <stdexcept>
 #include <base/float.h>
 
+#include <boost/lexical_cast.hpp>
+#include <string>
+using boost::lexical_cast;
+using std::string;
+
 using namespace dvl_teledyne;
 
 int PD0Parser::extractPacket(uint8_t const* buffer, size_t size, size_t max_size) const
