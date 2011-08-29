@@ -120,7 +120,7 @@ namespace dvl_teledyne
 
         struct VariableLeader
         {
-            enum MSG_ID { ID = 0x8000 };
+            enum MSG_ID { ID = 0x0080 };
             uint16_t id;
             uint16_t seq_low;
             uint8_t  rtc_year;
@@ -175,7 +175,7 @@ namespace dvl_teledyne
          * depth-cell */
         struct VelocityMessage
         {
-            enum MSG_ID { ID = 0x001 };
+            enum MSG_ID { ID = 0x0100 };
             int16_t id;
             CellVelocity velocities[0];
         } __attribute__((packed));
@@ -187,7 +187,7 @@ namespace dvl_teledyne
 
         struct CorrelationMessage
         {
-            enum MSG_ID { ID = 0x002 };
+            enum MSG_ID { ID = 0x0200 };
             uint16_t id;
             CellCorrelation correlations[0];
         } __attribute__((packed));
@@ -199,7 +199,7 @@ namespace dvl_teledyne
 
         struct IntensityMessage
         {
-            enum MSG_ID { ID = 0x003 };
+            enum MSG_ID { ID = 0x0300 };
             uint16_t id;
             CellIntensity intensities[0];
         } __attribute__((packed));
@@ -211,14 +211,14 @@ namespace dvl_teledyne
 
         struct QualityMessage
         {
-            enum MSG_ID { ID = 0x004 };
+            enum MSG_ID { ID = 0x0400 };
             uint16_t id;
             CellQuality quality[0];
         } __attribute__((packed));
 
         struct BottomTrackingMessage
         {
-            enum MSG_ID { ID = 0x006 };
+            enum MSG_ID { ID = 0x0600 };
             uint16_t id;
 
             uint16_t bottom_ping_per_ensemble;
