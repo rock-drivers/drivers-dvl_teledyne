@@ -22,26 +22,12 @@ int main(int argc, char const* argv[])
     driver.setWriteTimeout(base::Time::fromSeconds(5));
     driver.setReadTimeout(base::Time::fromSeconds(5));
 
-    driver.setConfigurationMode();
     if (argc == 3)
-    {
-        std::ifstream file(argv[2]);
-        std::string line;
+        driver.sendConfigurationFile(argv[2]);
 
-        char line_buffer[2000];
-        while (!file.eof())
-        {
-            if (!file.getline(line_buffer, 2000) && !file.eof())
-                throw std::runtime_error("lines longer than 2000 characters");
-
-            std::string line(line_buffer);
-            line += "\n";
-            std::cout << iodrivers_base::Driver::printable_com(line) << std::endl;
-            driver.writePacket(reinterpret_cast<uint8_t const*>(line.c_str()), line.length());
-            driver.readConfigurationAck();
-        }
-        driver.setConfigurationMode();
-    }
+    // The file might contain a CS command. Make sure we are still in
+    // configuration mode
+    driver.setConfigurationMode();
     driver.startAcquisition();
 }
 
