@@ -32,6 +32,9 @@ namespace dvl_teledyne
          * configuration accordingly
          */
         void setDesiredBaudrate(int rate);
+
+        /** Configures the output coordinate system */
+        void setOutputConfiguration(OutputConfiguration conf);
         
         /** Sends a text file that contains commands to the device
          *

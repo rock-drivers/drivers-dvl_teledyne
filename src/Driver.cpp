@@ -154,6 +154,24 @@ void Driver::readConfigurationAck(base::Time const& timeout)
         throw std::runtime_error(std::string(reinterpret_cast<char const*>(&buffer[0]), packet_size));
 }
 
+/** Configures the output coordinate system */
+void Driver::setOutputConfiguration(OutputConfiguration conf)
+{
+    if (!mConfMode)
+        throw std::runtime_error("not in configuration mode");
+
+    uint8_t mode_codes_1[4] = { '0', '0', '1', '1' };
+    uint8_t mode_codes_2[4] = { '0', '1', '0', '1' };
+    uint8_t const cmd[7] = {
+        'E', 'X',
+        mode_codes_1[conf.coordinate_system], mode_codes_2[conf.coordinate_system],
+        (conf.use_attitude       ? '1' : '0'),
+        (conf.use_3beam_solution ? '1' : '0'),
+        (conf.use_bin_mapping ? '1' : '0') };
+
+    writePacket(cmd, 7, 500);
+}
+
 void Driver::startAcquisition()
 {
     if (!mConfMode)
