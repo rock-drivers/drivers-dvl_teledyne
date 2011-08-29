@@ -35,7 +35,6 @@ namespace dvl_teledyne
          */
         void sendConfigurationFile(std::string const& file_name);
 
-        void sendConfiguration(std::string const& conf);
         void setConfigurationMode();
         void startAcquisition();
         void read();

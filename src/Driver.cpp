@@ -166,10 +166,3 @@ void Driver::startAcquisition()
     mConfMode = false;
 }
 
-void Driver::sendConfiguration(std::string const& conf)
-{
-    setConfigurationMode();
-    writePacket(reinterpret_cast<uint8_t const*>(conf.c_str()), conf.length(), 1000);
-    startAcquisition();
-}
-
