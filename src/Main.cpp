@@ -22,7 +22,7 @@ int main(int argc, char const* argv[])
     driver.read();
 
     char const* coord_systems[4] = { "BEAM", "INSTRUMENT", "SHIP", "EARTH" };
-    std::cout << "Device outputs its data in the " << coord_systems[driver.mOutputConf.coordinate_system] << " coordinate system" << std::endl;
+    std::cout << "Device outputs its data in the " << coord_systems[driver.outputConf.coordinate_system] << " coordinate system" << std::endl;
 
 
     std::cout << "Time Seq ";
@@ -34,8 +34,8 @@ int main(int argc, char const* argv[])
     {
         driver.read();
 
-        BottomTracking const& tracking = driver.mBottomTracking;
-        std::cout << tracking.time.toString() << " " << driver.mStatus.seq;
+        BottomTracking const& tracking = driver.bottomTracking;
+        std::cout << tracking.time.toString() << " " << driver.status.seq;
         for (int beam = 0; beam < 4; ++beam)
             std::cout << " " << tracking.range[beam] << " " << tracking.velocity[beam] << " " << tracking.evaluation[beam];
         std::cout << std::endl;

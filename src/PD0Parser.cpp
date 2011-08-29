@@ -117,14 +117,14 @@ void PD0Parser::parseEnsemble(uint8_t const* buffer, size_t size)
 
 void PD0Parser::invalidateCellReadings()
 {
-    for (size_t i = 0; i < mCellReadings.readings.size(); ++i)
+    for (size_t i = 0; i < cellReadings.readings.size(); ++i)
     {
         for (int beam = 0; beam < 4; ++beam)
         {
-            mCellReadings.readings[i].velocity[beam]  = base::unset<float>();
-            mCellReadings.readings[i].correlation[beam] = base::unset<float>();
-            mCellReadings.readings[i].intensity[beam] = base::unset<float>();
-            mCellReadings.readings[i].quality[beam]   = base::unset<float>();
+            cellReadings.readings[i].velocity[beam]  = base::unset<float>();
+            cellReadings.readings[i].correlation[beam] = base::unset<float>();
+            cellReadings.readings[i].intensity[beam] = base::unset<float>();
+            cellReadings.readings[i].quality[beam]   = base::unset<float>();
         }
     }
 }
@@ -136,9 +136,9 @@ void PD0Parser::parseMessage(uint8_t const* buffer, size_t size)
     {
     case raw::FixedLeader::ID:
         parseFixedLeader(buffer, size);
-        if (mCellReadings.readings.size() != mAcqConf.cell_count)
+        if (cellReadings.readings.size() != acqConf.cell_count)
         {
-            mCellReadings.readings.resize(mAcqConf.cell_count);
+            cellReadings.readings.resize(acqConf.cell_count);
             invalidateCellReadings();
         }
         break;
@@ -146,23 +146,23 @@ void PD0Parser::parseMessage(uint8_t const* buffer, size_t size)
         parseVariableLeader(buffer, size);
         break;
     case raw::VelocityMessage::ID:
-        mCellReadings.time = mStatus.time;
+        cellReadings.time = status.time;
         parseVelocityReadings(buffer, size);
         break;
     case raw::CorrelationMessage::ID:
-        mCellReadings.time = mStatus.time;
+        cellReadings.time = status.time;
         parseCorrelationReadings(buffer, size);
         break;
     case raw::IntensityMessage::ID:
-        mCellReadings.time = mStatus.time;
+        cellReadings.time = status.time;
         parseIntensityReadings(buffer, size);
         break;
     case raw::QualityMessage::ID:
-        mCellReadings.time = mStatus.time;
+        cellReadings.time = status.time;
         parseQualityReadings(buffer, size);
         break;
     case raw::BottomTrackingMessage::ID:
-        mBottomTracking.time = mStatus.time;
+        bottomTracking.time = status.time;
         parseBottomTrackingReadings(buffer, size);
         break;
     }
@@ -187,60 +187,60 @@ void PD0Parser::parseFixedLeader(uint8_t const* buffer, size_t size)
         throw std::runtime_error("parseFixedLeader: error in stream, buffer size too small");
 
     raw::FixedLeader const& leader = *reinterpret_cast<raw::FixedLeader const*>(buffer);
-    mDeviceInfo.fw_version           = leader.fw_version;
-    mDeviceInfo.fw_revision          = leader.fw_revision;
-    mDeviceInfo.cpu_board_serno      = le64toh(leader.cpu_board_serno);
-    mDeviceInfo.system_configuration = le16toh(leader.system_configuration);
-    mDeviceInfo.beam_count           = leader.beam_count;
-    mDeviceInfo.available_sensors    = parseSensors(leader.available_sensors);
+    deviceInfo.fw_version           = leader.fw_version;
+    deviceInfo.fw_revision          = leader.fw_revision;
+    deviceInfo.cpu_board_serno      = le64toh(leader.cpu_board_serno);
+    deviceInfo.system_configuration = le16toh(leader.system_configuration);
+    deviceInfo.beam_count           = leader.beam_count;
+    deviceInfo.available_sensors    = parseSensors(leader.available_sensors);
 
-    mAcqConf.lag_duration                  = leader.lag_duration;
-    mAcqConf.cell_count                    = leader.cell_count;
-    mAcqConf.pings_per_ensemble            = le16toh(leader.pings_per_ensemble);
-    mAcqConf.cell_length                   = 0.01f * le16toh(leader.cell_length);
-    mAcqConf.blank_after_transmit_distance = 0.01f * le16toh(leader.blank_after_transmit_distance);
-    mAcqConf.profiling_mode                = leader.profiling_mode;
-    mAcqConf.low_correlation_threshold     = leader.low_correlation_threshold;
-    mAcqConf.code_repetition_count         = leader.code_repetition_count;
-    mAcqConf.water_layer_min_ping_threshold = 1.0f / 255 * leader.water_layer_min_ping_threshold;
-    mAcqConf.water_layer_velocity_threshold = 0.001 * le16toh(leader.water_layer_velocity_threshold);
+    acqConf.lag_duration                  = leader.lag_duration;
+    acqConf.cell_count                    = leader.cell_count;
+    acqConf.pings_per_ensemble            = le16toh(leader.pings_per_ensemble);
+    acqConf.cell_length                   = 0.01f * le16toh(leader.cell_length);
+    acqConf.blank_after_transmit_distance = 0.01f * le16toh(leader.blank_after_transmit_distance);
+    acqConf.profiling_mode                = leader.profiling_mode;
+    acqConf.low_correlation_threshold     = leader.low_correlation_threshold;
+    acqConf.code_repetition_count         = leader.code_repetition_count;
+    acqConf.water_layer_min_ping_threshold = 1.0f / 255 * leader.water_layer_min_ping_threshold;
+    acqConf.water_layer_velocity_threshold = 0.001 * le16toh(leader.water_layer_velocity_threshold);
     uint64_t milliseconds =
         static_cast<uint32_t>(leader.time_between_ping_groups_min * 60 * 1000) +
         static_cast<uint32_t>(leader.time_between_ping_groups_sec * 1000) +
         static_cast<uint32_t>(leader.time_between_ping_groups_hundredth * 10);
-    mAcqConf.time_between_ping_groups = base::Time::fromMicroseconds(milliseconds * 1000);
-    mAcqConf.yaw_alignment     = M_PI / 180 * 0.01 * le16toh(leader.yaw_alignment);
-    mAcqConf.yaw_bias          = M_PI / 180 * 0.01 * le16toh(leader.yaw_bias);
-    mAcqConf.first_cell_distance   = 0.01f * le16toh(leader.first_cell_distance);
-    mAcqConf.transmit_pulse_length  = 0.01f * le16toh(leader.transmit_pulse_length);
-    mAcqConf.water_layer_start      = leader.water_layer_start;
-    mAcqConf.water_layer_end        = leader.water_layer_end;
-    mAcqConf.false_target_threshold = leader.false_target_threshold;
-    mAcqConf.low_latency_trigger    = leader.low_latency_trigger;
-    mAcqConf.transmit_lag_distance  = 0.01f * le16toh(leader.transmit_lag_distance);
-    mAcqConf.narrow_bandwidth_mode  = le16toh(leader.narrow_bandwidth_mode);
-    mAcqConf.used_sensors           = parseSensors(leader.used_sensors);
+    acqConf.time_between_ping_groups = base::Time::fromMicroseconds(milliseconds * 1000);
+    acqConf.yaw_alignment     = M_PI / 180 * 0.01 * le16toh(leader.yaw_alignment);
+    acqConf.yaw_bias          = M_PI / 180 * 0.01 * le16toh(leader.yaw_bias);
+    acqConf.first_cell_distance   = 0.01f * le16toh(leader.first_cell_distance);
+    acqConf.transmit_pulse_length  = 0.01f * le16toh(leader.transmit_pulse_length);
+    acqConf.water_layer_start      = leader.water_layer_start;
+    acqConf.water_layer_end        = leader.water_layer_end;
+    acqConf.false_target_threshold = leader.false_target_threshold;
+    acqConf.low_latency_trigger    = leader.low_latency_trigger;
+    acqConf.transmit_lag_distance  = 0.01f * le16toh(leader.transmit_lag_distance);
+    acqConf.narrow_bandwidth_mode  = le16toh(leader.narrow_bandwidth_mode);
+    acqConf.used_sensors           = parseSensors(leader.used_sensors);
 
     uint8_t mode = leader.coordinate_transformation_mode;
     switch(mode & raw::PD0_COORDINATE_SYSTEM_MASK)
     {
     case raw::PD0_COORD_BEAM:
-        mOutputConf.coordinate_system = BEAM;
+        outputConf.coordinate_system = BEAM;
         break;
     case raw::PD0_COORD_INSTRUMENT:
-        mOutputConf.coordinate_system = INSTRUMENT;
+        outputConf.coordinate_system = INSTRUMENT;
         break;
     case raw::PD0_COORD_SHIP:
-        mOutputConf.coordinate_system = SHIP;
+        outputConf.coordinate_system = SHIP;
         break;
     case raw::PD0_COORD_EARTH:
-        mOutputConf.coordinate_system = EARTH;
+        outputConf.coordinate_system = EARTH;
         break;
     default: throw std::runtime_error("unexpected value for coordinate_transformation_mode & raw::PD0_COORDINATE_SYSTEM_MASK");
     }
-    mOutputConf.use_attitude = mode & raw::PD0_USE_ATTITUDE;
-    mOutputConf.use_3beam_solution = mode & raw::PD0_USE_3BEAM_SOLUTION;
-    mOutputConf.use_binary_mapping = mode & raw::PD0_USE_BINARY_MAPPING;
+    outputConf.use_attitude = mode & raw::PD0_USE_ATTITUDE;
+    outputConf.use_3beam_solution = mode & raw::PD0_USE_3BEAM_SOLUTION;
+    outputConf.use_binary_mapping = mode & raw::PD0_USE_BINARY_MAPPING;
 }
 
 void PD0Parser::parseVariableLeader(uint8_t const* buffer, size_t size)
@@ -250,7 +250,7 @@ void PD0Parser::parseVariableLeader(uint8_t const* buffer, size_t size)
 
     raw::VariableLeader const& msg = *reinterpret_cast<raw::VariableLeader const*>(buffer);
 
-    mStatus.seq  = static_cast<uint32_t>(msg.seq_low) + (static_cast<uint32_t>(msg.seq_high) << 16);
+    status.seq  = static_cast<uint32_t>(msg.seq_low) + (static_cast<uint32_t>(msg.seq_high) << 16);
     {
         // Get current UTC time broken down in day, h, m, s
         time_t utc_epoch = ::time(NULL);
@@ -266,43 +266,43 @@ void PD0Parser::parseVariableLeader(uint8_t const* buffer, size_t size)
 
         // And convert it back to seconds since epoch
         time_t since_epoch = timegm(&utc_hms);
-        mStatus.time = base::Time::fromSeconds(since_epoch, static_cast<uint64_t>(msg.rtc_hundredth) * 10000);
+        status.time = base::Time::fromSeconds(since_epoch, static_cast<uint64_t>(msg.rtc_hundredth) * 10000);
     }
 
-    mStatus.orientation =
+    status.orientation =
         Eigen::AngleAxisd(M_PI / 180 * 0.01 * le16toh(msg.roll),    Eigen::Vector3d::UnitX()) *
         Eigen::AngleAxisd(M_PI / 180 * 0.01 * le16toh(msg.pitch),   Eigen::Vector3d::UnitY()) *
         Eigen::AngleAxisd(M_PI / 180 * 0.01 * le16toh(msg.yaw), Eigen::Vector3d::UnitZ());
-    mStatus.stddev_orientation[0] = M_PI / 180.0f * msg.stddev_yaw;
-    mStatus.stddev_orientation[1] = M_PI / 180.0f * 0.1f * msg.stddev_pitch;
-    mStatus.stddev_orientation[2] = M_PI / 180.0f * 0.1f * msg.stddev_roll;
-    mStatus.speed_of_sound = 1.0f * le16toh(msg.speed_of_sound);
-    mStatus.salinity    = 1e-3f * le16toh(msg.salinity_at_transducer);
-    mStatus.depth       = 1e-1f * le16toh(msg.depth_of_transducer);
-    mStatus.temperature = 1e-2f * le16toh(msg.temperature_at_transducer);
-    mStatus.pressure    = 100.0f + 10.0f * le32toh(msg.pressure_at_transducer);
-    mStatus.pressure_variance = 100.0f + 10.0f * le32toh(msg.pressure_variance_at_transducer);
+    status.stddev_orientation[0] = M_PI / 180.0f * msg.stddev_yaw;
+    status.stddev_orientation[1] = M_PI / 180.0f * 0.1f * msg.stddev_pitch;
+    status.stddev_orientation[2] = M_PI / 180.0f * 0.1f * msg.stddev_roll;
+    status.speed_of_sound = 1.0f * le16toh(msg.speed_of_sound);
+    status.salinity    = 1e-3f * le16toh(msg.salinity_at_transducer);
+    status.depth       = 1e-1f * le16toh(msg.depth_of_transducer);
+    status.temperature = 1e-2f * le16toh(msg.temperature_at_transducer);
+    status.pressure    = 100.0f + 10.0f * le32toh(msg.pressure_at_transducer);
+    status.pressure_variance = 100.0f + 10.0f * le32toh(msg.pressure_variance_at_transducer);
     uint64_t milliseconds =
         static_cast<uint32_t>(msg.min_preping_wait_duration_min * 60 * 1000) +
         static_cast<uint32_t>(msg.min_preping_wait_duration_sec * 1000) +
         static_cast<uint32_t>(msg.min_preping_wait_duration_hundredth * 10);
-    mStatus.min_preping_wait = base::Time::fromMicroseconds(milliseconds * 1000);
+    status.min_preping_wait = base::Time::fromMicroseconds(milliseconds * 1000);
 
     for (int i = 0; i < 8; ++i)
-        mStatus.adc_channels[i] = msg.adc_channels[i];
+        status.adc_channels[i] = msg.adc_channels[i];
 }
 
 void PD0Parser::parseVelocityReadings(uint8_t const* buffer, size_t size)
 {
-    if (size < sizeof(raw::VelocityMessage) + mAcqConf.cell_count * sizeof(raw::CellVelocity))
+    if (size < sizeof(raw::VelocityMessage) + acqConf.cell_count * sizeof(raw::CellVelocity))
         throw std::runtime_error("parseVelocityReadings: buffer size too small");
 
     raw::VelocityMessage const& msg = *reinterpret_cast<raw::VelocityMessage const*>(buffer);
-    for (int cell_idx = 0; cell_idx < mAcqConf.cell_count; ++cell_idx)
+    for (int cell_idx = 0; cell_idx < acqConf.cell_count; ++cell_idx)
     {
         // This is pre-sized as soon as we know the number of cells in the
         // acquisition process
-        CellReading& cell = mCellReadings.readings[cell_idx];
+        CellReading& cell = cellReadings.readings[cell_idx];
         
         for (int beam_idx = 0; beam_idx < 4; ++beam_idx)
         {
@@ -317,15 +317,15 @@ void PD0Parser::parseVelocityReadings(uint8_t const* buffer, size_t size)
 
 void PD0Parser::parseCorrelationReadings(uint8_t const* buffer, size_t size)
 {
-    if (size < sizeof(raw::CorrelationMessage) + mAcqConf.cell_count * sizeof(raw::CellCorrelation))
+    if (size < sizeof(raw::CorrelationMessage) + acqConf.cell_count * sizeof(raw::CellCorrelation))
         throw std::runtime_error("parseCorrelationReadings: buffer size too small");
 
     raw::CorrelationMessage const& msg = *reinterpret_cast<raw::CorrelationMessage const*>(buffer);
-    for (int cell_idx = 0; cell_idx < mAcqConf.cell_count; ++cell_idx)
+    for (int cell_idx = 0; cell_idx < acqConf.cell_count; ++cell_idx)
     {
         // This is pre-sized as soon as we know the number of cells in the
         // acquisition process
-        CellReading& cell = mCellReadings.readings[cell_idx];
+        CellReading& cell = cellReadings.readings[cell_idx];
         
         for (int beam_idx = 0; beam_idx < 4; ++beam_idx)
         {
@@ -337,15 +337,15 @@ void PD0Parser::parseCorrelationReadings(uint8_t const* buffer, size_t size)
 
 void PD0Parser::parseIntensityReadings(uint8_t const* buffer, size_t size)
 {
-    if (size < sizeof(raw::IntensityMessage) + mAcqConf.cell_count * sizeof(raw::CellIntensity))
+    if (size < sizeof(raw::IntensityMessage) + acqConf.cell_count * sizeof(raw::CellIntensity))
         throw std::runtime_error("parseIntensityReadings: buffer size too small");
 
     raw::IntensityMessage const& msg = *reinterpret_cast<raw::IntensityMessage const*>(buffer);
-    for (int cell_idx = 0; cell_idx < mAcqConf.cell_count; ++cell_idx)
+    for (int cell_idx = 0; cell_idx < acqConf.cell_count; ++cell_idx)
     {
         // This is pre-sized as soon as we know the number of cells in the
         // acquisition process
-        CellReading& cell = mCellReadings.readings[cell_idx];
+        CellReading& cell = cellReadings.readings[cell_idx];
         
         for (int beam_idx = 0; beam_idx < 4; ++beam_idx)
         {
@@ -357,15 +357,15 @@ void PD0Parser::parseIntensityReadings(uint8_t const* buffer, size_t size)
 
 void PD0Parser::parseQualityReadings(uint8_t const* buffer, size_t size)
 {
-    if (size < sizeof(raw::QualityMessage) + mAcqConf.cell_count * sizeof(raw::CellQuality))
+    if (size < sizeof(raw::QualityMessage) + acqConf.cell_count * sizeof(raw::CellQuality))
         throw std::runtime_error("parseQualityReadings: buffer size too small");
 
     raw::QualityMessage const& msg = *reinterpret_cast<raw::QualityMessage const*>(buffer);
-    for (int cell_idx = 0; cell_idx < mAcqConf.cell_count; ++cell_idx)
+    for (int cell_idx = 0; cell_idx < acqConf.cell_count; ++cell_idx)
     {
         // This is pre-sized as soon as we know the number of cells in the
         // acquisition process
-        CellReading& cell = mCellReadings.readings[cell_idx];
+        CellReading& cell = cellReadings.readings[cell_idx];
         
         for (int beam_idx = 0; beam_idx < 4; ++beam_idx)
         {
@@ -382,34 +382,34 @@ void PD0Parser::parseBottomTrackingReadings(uint8_t const* buffer, size_t size)
 
     raw::BottomTrackingMessage const& msg = *reinterpret_cast<raw::BottomTrackingMessage const*>(buffer);
 
-    mBottomTrackingConf.ping_per_ensemble = le16toh(msg.bottom_ping_per_ensemble);
-    mBottomTrackingConf.delay_before_reacquiring = le16toh(msg.bottom_delay_before_reacquiring);
-    mBottomTrackingConf.correlation_threshold = 1.0f / 255 * msg.bottom_correlation_threshold;
-    mBottomTrackingConf.evaluation_threshold  = 1.0f / 255 * msg.bottom_evaluation_threshold;
-    mBottomTrackingConf.good_ping_threshold = 0.01f * msg.bottom_good_ping_threshold;
-    mBottomTrackingConf.mode = msg.bottom_mode;
-    mBottomTrackingConf.max_velocity_error = 1e-3f * le16toh(msg.bottom_max_velocity_error);
-    mBottomTrackingConf.max_tracking_depth = 1e-1f * le16toh(msg.max_tracking_depth);
+    bottomTrackingConf.ping_per_ensemble = le16toh(msg.bottom_ping_per_ensemble);
+    bottomTrackingConf.delay_before_reacquiring = le16toh(msg.bottom_delay_before_reacquiring);
+    bottomTrackingConf.correlation_threshold = 1.0f / 255 * msg.bottom_correlation_threshold;
+    bottomTrackingConf.evaluation_threshold  = 1.0f / 255 * msg.bottom_evaluation_threshold;
+    bottomTrackingConf.good_ping_threshold = 0.01f * msg.bottom_good_ping_threshold;
+    bottomTrackingConf.mode = msg.bottom_mode;
+    bottomTrackingConf.max_velocity_error = 1e-3f * le16toh(msg.bottom_max_velocity_error);
+    bottomTrackingConf.max_tracking_depth = 1e-1f * le16toh(msg.max_tracking_depth);
 
-    mBottomTracking.time = mStatus.time;
+    bottomTracking.time = status.time;
     for (int beam = 0; beam < 4; ++beam)
     {
         uint32_t value = static_cast<uint32_t>(le16toh(msg.bottom_range_low[beam])) +
             (static_cast<uint32_t>(msg.bottom_range_high[beam]) << 16);
         if (value)
-            mBottomTracking.range[beam]           = 1e-2f * value;
+            bottomTracking.range[beam]           = 1e-2f * value;
         else
-            mBottomTracking.range[beam]           = base::unknown<float>();
+            bottomTracking.range[beam]           = base::unknown<float>();
 
         int16_t velocity = le16toh(msg.bottom_velocity[beam]);
         if (velocity == -32768)
-            mBottomTracking.velocity[beam]        = base::unknown<float>();
+            bottomTracking.velocity[beam]        = base::unknown<float>();
         else
-            mBottomTracking.velocity[beam]        = 1e-3f * value;
+            bottomTracking.velocity[beam]        = 1e-3f * value;
 
-        mBottomTracking.correlation[beam]     = 1.0f / 255 * msg.bottom_correlation[beam];
-        mBottomTracking.evaluation[beam]      = 1.0f / 255 * msg.bottom_evaluation[beam];
-        mBottomTracking.good_ping_ratio[beam] = 1.0f / 255 * msg.bottom_good_ping_ratio[beam];
-        mBottomTracking.rssi[beam]            = 0.45f * msg.rssi[beam];
+        bottomTracking.correlation[beam]     = 1.0f / 255 * msg.bottom_correlation[beam];
+        bottomTracking.evaluation[beam]      = 1.0f / 255 * msg.bottom_evaluation[beam];
+        bottomTracking.good_ping_ratio[beam] = 1.0f / 255 * msg.bottom_good_ping_ratio[beam];
+        bottomTracking.rssi[beam]            = 0.45f * msg.rssi[beam];
     }
 }

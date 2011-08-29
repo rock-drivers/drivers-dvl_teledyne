@@ -21,12 +21,12 @@ int main(int argc, char const* argv[])
 
 
     std::cout << "Found device" << std::endl;
-    std::cout << "  fw: " << (int)driver.mDeviceInfo.fw_version << "." << (int)driver.mDeviceInfo.fw_revision << std::endl;
-    std::cout << "  serno: " << std::hex << driver.mDeviceInfo.cpu_board_serno << std::dec << std::endl;
-    std::cout << "  beam count: " << (int)driver.mDeviceInfo.beam_count << std::endl;
-    std::cout << "  calculates speed of sound: "<< (int)driver.mDeviceInfo.available_sensors.calculates_speed_of_sound << std::endl;
+    std::cout << "  fw: " << (int)driver.deviceInfo.fw_version << "." << (int)driver.deviceInfo.fw_revision << std::endl;
+    std::cout << "  serno: " << std::hex << driver.deviceInfo.cpu_board_serno << std::dec << std::endl;
+    std::cout << "  beam count: " << (int)driver.deviceInfo.beam_count << std::endl;
+    std::cout << "  calculates speed of sound: "<< (int)driver.deviceInfo.available_sensors.calculates_speed_of_sound << std::endl;
     std::cout << "  available sensors:" << std::endl;
-    dvl_teledyne::Sensors const& sensors = driver.mDeviceInfo.available_sensors;
+    dvl_teledyne::Sensors const& sensors = driver.deviceInfo.available_sensors;
     std::cout << "    depth: " << (sensors.depth ? "yes" : "no") << std::endl;
     std::cout << "    yaw: "   << (sensors.yaw ? "yes" : "no") << std::endl;
     std::cout << "    pitch: " << (sensors.pitch ? "yes" : "no") << std::endl;

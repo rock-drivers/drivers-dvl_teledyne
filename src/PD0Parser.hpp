@@ -27,13 +27,14 @@ namespace dvl_teledyne
         void parseBottomTrackingReadings(uint8_t const* buffer, size_t size);
 
     public:
-        DeviceInfo mDeviceInfo;
-        AcquisitionConfiguration mAcqConf;
-        OutputConfiguration mOutputConf;
-        Status mStatus;
-        CellReadings mCellReadings;
-        BottomTrackingConfiguration mBottomTrackingConf;
-        BottomTracking mBottomTracking;
+
+        DeviceInfo deviceInfo;
+        AcquisitionConfiguration acqConf;
+        OutputConfiguration outputConf;
+        Status status;
+        CellReadings cellReadings;
+        BottomTrackingConfiguration bottomTrackingConf;
+        BottomTracking bottomTracking;
 
         void parseEnsemble(uint8_t const* data, size_t size);
     };
