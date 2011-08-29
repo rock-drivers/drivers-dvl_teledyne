@@ -98,6 +98,9 @@ void PD0Parser::parseEnsemble(uint8_t const* buffer, size_t size)
     // Validate the message sizes
     raw::Header const& header = *reinterpret_cast<raw::Header const*>(buffer);
 
+    if (sizeof(raw::Header) + header.msg_count * 2 > size)
+        throw std::runtime_error("not enough bytes for " + lexical_cast<string>((int)header.msg_count) + " messages");
+
     uint32_t offsets[256];
     for (int i = 0; i < header.msg_count; ++i)
         offsets[i] = le16toh(header.offsets[i]);
