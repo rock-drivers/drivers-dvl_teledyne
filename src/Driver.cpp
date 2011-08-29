@@ -88,7 +88,6 @@ int Driver::extractPacket (uint8_t const *buffer, size_t buffer_size) const
 {
     if (mConfMode)
     {
-        std::cout << iodrivers_base::Driver::printable_com(std::string((char const*)buffer, buffer_size)) << std::endl;
         char const* buffer_as_string = reinterpret_cast<char const*>(buffer);
         if (buffer_as_string[0] == '>')
             return 1;
