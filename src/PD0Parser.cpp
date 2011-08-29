@@ -240,7 +240,7 @@ void PD0Parser::parseFixedLeader(uint8_t const* buffer, size_t size)
     }
     outputConf.use_attitude = mode & raw::PD0_USE_ATTITUDE;
     outputConf.use_3beam_solution = mode & raw::PD0_USE_3BEAM_SOLUTION;
-    outputConf.use_binary_mapping = mode & raw::PD0_USE_BINARY_MAPPING;
+    outputConf.use_bin_mapping = mode & raw::PD0_USE_BIN_MAPPING;
 }
 
 void PD0Parser::parseVariableLeader(uint8_t const* buffer, size_t size)

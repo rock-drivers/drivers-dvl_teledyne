@@ -33,7 +33,7 @@ namespace dvl_teledyne
 
             PD0_USE_ATTITUDE      = 0x04,
             PD0_USE_3BEAM_SOLUTION = 0x02,
-            PD0_USE_BINARY_MAPPING = 0x01
+            PD0_USE_BIN_MAPPING = 0x01
         };
 
         /** List of sensors */

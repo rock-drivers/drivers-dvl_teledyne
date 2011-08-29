@@ -104,7 +104,7 @@ namespace dvl_teledyne
         COORDINATE_SYSTEMS coordinate_system;
         bool use_attitude;
         bool use_3beam_solution;
-        bool use_binary_mapping;
+        bool use_bin_mapping;
     };
 
     /** Realtime device state */
