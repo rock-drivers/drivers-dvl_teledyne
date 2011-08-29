@@ -37,12 +37,14 @@ void Driver::sendConfigurationFile(std::string const& file_name)
             throw std::runtime_error("lines longer than 2000 characters");
 
         std::string line(line_buffer);
+        if (line == "CS")
+            break;
+
         line += "\n";
         std::cout << iodrivers_base::Driver::printable_com(line) << std::endl;
         writePacket(reinterpret_cast<uint8_t const*>(line.c_str()), line.length());
         readConfigurationAck();
     }
-    setConfigurationMode();
 }
 
 void Driver::setDesiredBaudrate(int rate)
