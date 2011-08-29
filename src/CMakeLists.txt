@@ -9,3 +9,6 @@ rock_executable(dvl_teledyne_info
 rock_executable(dvl_teledyne_read
     Main.cpp
     DEPS dvl_teledyne)
+rock_executable(dvl_teledyne_configure
+    MainConfigure.cpp
+    DEPS dvl_teledyne)
