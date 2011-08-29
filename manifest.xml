@@ -6,5 +6,5 @@
   </description>
   <author>Sylvain Joyeux/sylvain.joyeux@dfki.de</author>
   <depend package="base/types" />
-  <depend package="base/iodrivers_base" />
+  <depend package="drivers/iodrivers_base" />
 </package>
