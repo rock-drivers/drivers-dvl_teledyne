@@ -5,6 +5,8 @@
   payload.
   </description>
   <author>Sylvain Joyeux/sylvain.joyeux@dfki.de</author>
+  <license>LGPL v2 or later</license>
+  <copyright>DFKI Robotics Innovation Center and MARUM</copyright>
   <depend package="base/types" />
   <depend package="drivers/iodrivers_base" />
 </package>
