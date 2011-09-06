@@ -16,7 +16,7 @@ Driver::Driver()
 
 void Driver::open(std::string const& uri)
 {
-    openSerial(uri, 9600);
+    openURI(uri);
     setConfigurationMode();
     if (mDesiredBaudrate != 9600)
         setDesiredBaudrate(mDesiredBaudrate);
