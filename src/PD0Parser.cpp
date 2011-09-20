@@ -405,8 +405,8 @@ void PD0Parser::parseBottomTrackingReadings(uint8_t const* buffer, size_t size)
         if (velocity == -32768)
             bottomTracking.velocity[beam]        = base::unknown<float>();
         else
-            bottomTracking.velocity[beam]        = 1e-3f * value;
 
+            bottomTracking.velocity[beam]        = 1e-3f * velocity;
         bottomTracking.correlation[beam]     = 1.0f / 255 * msg.bottom_correlation[beam];
         bottomTracking.evaluation[beam]      = 1.0f / 255 * msg.bottom_evaluation[beam];
         bottomTracking.good_ping_ratio[beam] = 1.0f / 255 * msg.bottom_good_ping_ratio[beam];
