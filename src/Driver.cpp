@@ -129,7 +129,7 @@ void Driver::setConfigurationMode()
     // Repeatedly write a CR on the line and check for an ack (i.e. a prompt).
     // We do it repeatedly so that we are sure that the CR is not lost.
     clear();
-    for (int i = 0; i < 10; ++i)
+    for (int i = 0; i < 12; ++i)
     {
         writePacket(reinterpret_cast<uint8_t const*>("\n"), 1, 100);
         try
@@ -140,7 +140,7 @@ void Driver::setConfigurationMode()
         }
         catch(iodrivers_base::TimeoutError)
         {
-            if (i == 9) throw;
+            if (i == 11) throw;
         }
     }
 }
