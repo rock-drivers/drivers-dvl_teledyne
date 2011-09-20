@@ -248,9 +248,9 @@ namespace dvl_teledyne
             uint8_t  rssi[4];
             uint8_t  gain;
             uint8_t  bottom_range_high[4];
-            uint8_t  reserved1[4];
+            // the Explorer DVL does not have these 4 Navigator-specific bytes: uint8_t  reserved1[4];
         } __attribute__((packed));
-        BOOST_STATIC_ASSERT(sizeof(BottomTrackingMessage) == 85);
+        BOOST_STATIC_ASSERT(sizeof(BottomTrackingMessage) == 81);
     };
 }
 
