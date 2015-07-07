@@ -306,7 +306,7 @@ void PD0Parser::parseVelocityReadings(uint8_t const* buffer, size_t size)
         
         for (int beam_idx = 0; beam_idx < 4; ++beam_idx)
         {
-            int16_t value = le16toh(msg.velocities[beam_idx].velocity[beam_idx]);
+            int16_t value = le16toh(msg.velocities[cell_idx].velocity[beam_idx]);
             if (value == -32768)
                 cell.velocity[beam_idx] = base::unknown<float>();
             else
@@ -329,7 +329,7 @@ void PD0Parser::parseCorrelationReadings(uint8_t const* buffer, size_t size)
         
         for (int beam_idx = 0; beam_idx < 4; ++beam_idx)
         {
-            uint8_t value = msg.correlations[beam_idx].correlation[beam_idx];
+            uint8_t value = msg.correlations[cell_idx].correlation[beam_idx];
             cell.correlation[beam_idx] = 1.0f / 255 * value;
         }
     }
@@ -369,7 +369,7 @@ void PD0Parser::parseQualityReadings(uint8_t const* buffer, size_t size)
         
         for (int beam_idx = 0; beam_idx < 4; ++beam_idx)
         {
-            uint8_t value = msg.quality[beam_idx].quality[beam_idx];
+            uint8_t value = msg.quality[cell_idx].quality[beam_idx];
             cell.quality[beam_idx] = 1.0f / 255 * value;
         }
     }
