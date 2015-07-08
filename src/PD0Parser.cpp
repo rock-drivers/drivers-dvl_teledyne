@@ -349,7 +349,7 @@ void PD0Parser::parseIntensityReadings(uint8_t const* buffer, size_t size)
         
         for (int beam_idx = 0; beam_idx < 4; ++beam_idx)
         {
-            uint8_t value = msg.intensities[beam_idx].intensity[beam_idx];
+            uint8_t value = msg.intensities[cell_idx].intensity[beam_idx];
             cell.intensity[beam_idx] = 0.45 * value;
         }
     }
