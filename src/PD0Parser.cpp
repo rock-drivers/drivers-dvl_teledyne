@@ -2,7 +2,7 @@
 #include <dvl_teledyne/PD0Raw.hpp>
 #include <endian.h>
 #include <stdexcept>
-#include <base/float.h>
+#include <base/Float.hpp>
 
 #include <boost/lexical_cast.hpp>
 #include <string>

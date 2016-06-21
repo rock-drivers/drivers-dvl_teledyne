@@ -2,9 +2,8 @@
 #define DVL_TELEDYNE_PD0PARSER_HPP
 
 #include <stdint.h>
-#include <base/time.h>
-#include <base/eigen.h>
-#include <boost/static_assert.hpp>
+#include <base/Time.hpp>
+#include <base/Eigen.hpp>
 #include <vector>
 
 #include <dvl_teledyne/PD0Messages.hpp>

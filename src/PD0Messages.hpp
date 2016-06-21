@@ -2,8 +2,8 @@
 #define DVL_TELEDYNE_PD0MESSAGES_HPP
 
 #include <stdint.h>
-#include <base/time.h>
-#include <base/eigen.h>
+#include <base/Time.hpp>
+#include <base/Eigen.hpp>
 #include <vector>
 
 namespace dvl_teledyne
