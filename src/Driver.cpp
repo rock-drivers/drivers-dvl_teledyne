@@ -180,7 +180,6 @@ void Driver::startAcquisition()
     writePacket(reinterpret_cast<uint8_t const*>("PD0\n"), 4, 100);
     readConfigurationAck();
     writePacket(reinterpret_cast<uint8_t const*>("CS\n"), 3, 100);
-    readConfigurationAck();
     mConfMode = false;
 }
 
