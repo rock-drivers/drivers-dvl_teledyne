@@ -11,6 +11,7 @@ Driver::Driver()
     , mConfMode(false)
     , mDesiredBaudrate(9600)
 {
+    m_read_timeout = base::Time::fromSeconds(1.);
     buffer.resize(1000000);
 }
 
@@ -43,7 +44,7 @@ void Driver::sendConfigurationFile(std::string const& file_name)
         line += "\n";
         std::cout << iodrivers_base::Driver::printable_com(line) << std::endl;
         writePacket(reinterpret_cast<uint8_t const*>(line.c_str()), line.length());
-        readConfigurationAck();
+        readConfigurationAck(m_read_timeout);
     }
 }
 
@@ -74,7 +75,7 @@ void Driver::setDeviceBaudrate(int rate)
     }
     uint8_t data[7] = { 'C', 'B', '0' + code, '1', '1', '\n', 0 };
     writePacket(data, 6, 100);
-    readConfigurationAck();
+    readConfigurationAck(m_read_timeout);
 }
 
 void Driver::read()
@@ -134,7 +135,7 @@ void Driver::setConfigurationMode()
         writePacket(reinterpret_cast<uint8_t const*>("\n"), 1, 100);
         try
         {
-            readConfigurationAck(base::Time::fromSeconds(0.1));
+            readConfigurationAck(m_read_timeout);
             clear();
             break;
         }
@@ -178,7 +179,7 @@ void Driver::startAcquisition()
         throw std::logic_error("not in configuration mode");
 
     writePacket(reinterpret_cast<uint8_t const*>("PD0\n"), 4, 100);
-    readConfigurationAck();
+    readConfigurationAck(m_read_timeout);
     writePacket(reinterpret_cast<uint8_t const*>("CS\n"), 3, 100);
     mConfMode = false;
 }
